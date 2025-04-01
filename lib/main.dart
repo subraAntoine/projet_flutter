@@ -14,6 +14,7 @@ class MainApp extends StatelessWidget {
       title: 'Music Explorer',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         fontFamily: 'SFPro',
       ),
       home: const HomeScreen()

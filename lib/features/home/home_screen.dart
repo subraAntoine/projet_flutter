@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_flutter/core/theme/app_colors.dart';
 
 import '../charts/charts_screen.dart';
 import '../search/search_screen.dart';
@@ -31,13 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.navbar,
+        elevation: 0,
         currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
+            icon: Icon(Icons.insert_chart),
             label: 'Classements',
           ),
           BottomNavigationBarItem(
