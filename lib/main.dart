@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'SFPro',
+        fontFamily: 'SFProDisplay',
       ),
       home: const HomeScreen()
       

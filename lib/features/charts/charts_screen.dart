@@ -64,9 +64,10 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.only(left: 8.0),
               child: Text(
                 'Classements',
                 style: TextStyle(
@@ -79,6 +80,8 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
               controller: _tabController,
               labelColor: AppColors.primary,
               unselectedLabelColor: Colors.grey,
+              indicatorColor: AppColors.primary,
+              indicatorSize: TabBarIndicatorSize.tab,
               tabs: const [
                 Tab(text: 'Titres'),
                 Tab(text: 'Albums'),
@@ -86,12 +89,16 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
             ),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ))
                   : TabBarView(
                       controller: _tabController,
                       children: [
                         // Titres tab
                         RefreshIndicator(
+                          color: AppColors.primary,
+                          backgroundColor: AppColors.background,
                           onRefresh: _fetchData,
                           child: _tracks.isEmpty
                               ? const Center(child: Text('Aucun titre disponible'))
@@ -104,12 +111,15 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
                                       imageUrl: track.trackThumb ?? '',
                                       title: track.title,
                                       artist: track.artist,
+                                      artistId: track.artistId,
                                     );
                                   },
                                 ),
                         ),
                         // Albums tab
                         RefreshIndicator(
+                          color: AppColors.primary,
+                          backgroundColor: AppColors.background,
                           onRefresh: _fetchData,
                           child: _albums.isEmpty
                               ? const Center(child: Text('Aucun album disponible'))
@@ -122,6 +132,7 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
                                       imageUrl: album.albumThumb,
                                       title: album.title,
                                       artist: album.artist,
+                                      artistId: album.artistId,
                                     );
                                   },
                                 ),

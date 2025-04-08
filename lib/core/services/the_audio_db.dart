@@ -1,3 +1,5 @@
+import 'package:projet_flutter/core/models/artist.dart';
+
 import 'api_client.dart';
 import '../models/album.dart';
 import '../models/track.dart';
@@ -28,6 +30,19 @@ class AudioDbApi {
       return trendingData.map((trackData) => Track.fromJson(trackData)).toList();
     } catch (e) {
       developer.log('Error fetching singles: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Artist>> fetchArtistData(String id) async {
+    try {
+      final data = await _client.get('artist.php?i=$id');
+      developer.log('Artist API Response: $data');
+      final List<dynamic> artistData = data['artists'] ?? [];
+      developer.log('Found ${artistData.length} artists in response');
+      return artistData.map((artistData) => Artist.fromJson(artistData)).toList();
+    } catch (e) {
+      developer.log('Error fetching artist data: $e');
       rethrow;
     }
   }
