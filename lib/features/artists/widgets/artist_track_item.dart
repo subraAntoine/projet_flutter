@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:projet_flutter/core/theme/app_colors.dart';
 
 class ArtistTrackItem extends StatelessWidget {
   final int rank;

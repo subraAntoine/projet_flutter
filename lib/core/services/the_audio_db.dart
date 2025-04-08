@@ -46,4 +46,30 @@ class AudioDbApi {
       rethrow;
     }
   }
+
+  Future<List<Album>> fetchArtistAlbums(String id) async {
+    try {
+      final data = await _client.get('artist.php?i=$id&format=albums');
+      developer.log('Artist albums API Response: $data');
+      final List<dynamic> albumsData = data['albums'] ?? [];
+      developer.log('Number of albums: ${albumsData.length}');
+      return albumsData.map((albumData) => Album.fromJson(albumData)).toList();
+    } catch (e) {
+      developer.log('Error fetching artist albums: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Track>> fetchArtistTopTracks(String id) async {
+    try {
+      final data = await _client.get('artist.php?i=$id&format=tracks');
+      developer.log('Artist top tracks API Response: $data');
+      final List<dynamic> tracksData = data['tracks'] ?? [];
+      developer.log('Number of tracks: ${tracksData.length}');
+      return tracksData.map((trackData) => Track.fromJson(trackData)).toList();
+    } catch (e) {
+      developer.log('Error fetching artist top tracks: $e');
+      rethrow;
+    }
+  }
 }
