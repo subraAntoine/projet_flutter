@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projet_flutter/core/models/artist.dart';
+import 'package:projet_flutter/core/models/album.dart';
+import 'package:projet_flutter/core/models/track.dart';
 import 'package:projet_flutter/core/services/the_audio_db.dart';
 import 'package:projet_flutter/core/theme/app_colors.dart';
 import 'package:projet_flutter/features/artists/widgets/artist_album_item.dart';
@@ -21,7 +23,11 @@ class ArtistScreen extends StatefulWidget {
 class _ArtistScreenState extends State<ArtistScreen> {
   final AudioDbApi _audioDbApi = AudioDbApi();
   Artist? _artist;
+  List<Album> _albums = [];
+  List<Track> _topTracks = [];
   bool _isLoading = true;
+  bool _isLoadingAlbums = true;
+  bool _isLoadingTracks = true;
   String _errorMessage = '';
 
   @override
@@ -41,6 +47,8 @@ class _ArtistScreenState extends State<ArtistScreen> {
           _isLoading = false;
         });
         developer.log('Artist data fetched successfully: ${_artist!.name}');
+        _fetchArtistAlbums();
+        _fetchArtistTopTracks();
       } else {
         setState(() {
           _isLoading = false;
@@ -53,6 +61,42 @@ class _ArtistScreenState extends State<ArtistScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage = 'Erreur lors du chargement des données: $e';
+      });
+    }
+  }
+
+  Future<void> _fetchArtistAlbums() async {
+    setState(() => _isLoadingAlbums = true);
+    try {
+      developer.log('Fetching albums for artist ID: ${widget.artistId}');
+      final albums = await _audioDbApi.fetchArtistAlbums(widget.artistId);
+      setState(() {
+        _albums = albums;
+        _isLoadingAlbums = false;
+      });
+      developer.log('Albums fetched successfully: ${_albums.length}');
+    } catch (e) {
+      developer.log('Error fetching albums: $e');
+      setState(() {
+        _isLoadingAlbums = false;
+      });
+    }
+  }
+
+  Future<void> _fetchArtistTopTracks() async {
+    setState(() => _isLoadingTracks = true);
+    try {
+      developer.log('Fetching top tracks for artist ID: ${widget.artistId}');
+      final tracks = await _audioDbApi.fetchArtistTopTracks(widget.artistId);
+      setState(() {
+        _topTracks = tracks;
+        _isLoadingTracks = false;
+      });
+      developer.log('Top tracks fetched successfully: ${_topTracks.length}');
+    } catch (e) {
+      developer.log('Error fetching top tracks: $e');
+      setState(() {
+        _isLoadingTracks = false;
       });
     }
   }
@@ -115,30 +159,28 @@ class _ArtistScreenState extends State<ArtistScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _artist!.name,
+              _artist?.name ?? 'Artiste',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-           if (_artist!.country != null && _artist!.country!.isNotEmpty)
+            if (_artist?.country != null && _artist?.country?.isNotEmpty == true)
               Text(
-                "${_artist!.country} - ${_artist!.genre ?? 'R&B'}",
-                style: TextStyle(
-                  color: const Color.fromARGB(178, 255, 255, 255),
+                "${_artist?.country} - ${_artist?.genre ?? 'R&B'}",
+                style: const TextStyle(
+                  color: Color.fromARGB(178, 255, 255, 255),
                   fontSize: 14,
                 ),
             ),
           ],
         ),
-
         background: Stack(
           fit: StackFit.expand,
           children: [
-            // Background image
-            _artist!.fanart != null && _artist!.fanart!.isNotEmpty
+            _artist?.fanart != null && _artist?.fanart?.isNotEmpty == true
               ? Image.network(
-                  _artist!.fanart!,
+                  _artist?.fanart ?? '',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[300],
@@ -146,8 +188,6 @@ class _ArtistScreenState extends State<ArtistScreen> {
                   ),
                 )
               : Container(color: Colors.grey[300]),
-            
-            // Gradient overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -172,13 +212,10 @@ class _ArtistScreenState extends State<ArtistScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
           const SizedBox(height: 16),
-          
-          // Bio
-          if (_artist!.biography != null && _artist!.biography!.isNotEmpty)
+          if (_artist?.biography != null && _artist?.biography?.isNotEmpty == true)
             Text(
-              _artist!.biography!,
+              _artist?.biography ?? '',
               style: const TextStyle(
                 fontSize: 16,
                 height: 1.5,
@@ -193,21 +230,14 @@ class _ArtistScreenState extends State<ArtistScreen> {
   }
 
   Widget _buildAlbumSection() {
-    // Sample data for mockup, would normally come from API
-    final sampleAlbums = [
-      {"title": "After Hours", "year": "2020", "image": _artist?.thumb},
-      {"title": "Star boy", "year": "2016", "image": _artist?.thumb},
-      {"title": "Beauty Behind the Madness", "year": "2015", "image": _artist?.thumb},
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            "Albums (12)",
-            style: TextStyle(
+            "Albums (${_albums.length})",
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
             ),
@@ -221,42 +251,35 @@ class _ArtistScreenState extends State<ArtistScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: sampleAlbums.length,
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          itemBuilder: (context, index) {
-            final album = sampleAlbums[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: ArtistAlbumItem(
-                title: album["title"]!,
-                year: album["year"],
-                imageUrl: album["image"],
-                onTap: () {
-                  // Navigate to album details page
+        _isLoadingAlbums
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : _albums.isEmpty
+            ? const Center(child: Text("Aucun album trouvé"))
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _albums.length,
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                itemBuilder: (context, index) {
+                  final album = _albums[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: ArtistAlbumItem(
+                      title: album.strAlbum ?? "Album sans titre",
+                      year: album.intYearReleased ?? "",
+                      imageUrl: album.strAlbumThumb,
+                      onTap: () {
+                        // Navigate to album details page
+                      },
+                    ),
+                  );
                 },
               ),
-            );
-          },
-        ),
       ],
     );
   }
 
   Widget _buildTopTracksSection() {
-    // Sample data for mockup, would normally come from API
-    final sampleTracks = [
-      "Walk on Water feat. Beyoncé",
-      "Believe",
-      "Chloraseptic feat. Phresher",
-      "Untouchable",
-      "River feat. Ed Sheeran",
-      "Remind Me (Intro)",
-      "Remind Me",
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,27 +293,32 @@ class _ArtistScreenState extends State<ArtistScreen> {
             ),
           ),
         ),
-         Padding(
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           child: Container(
             height: 1,
             color: Colors.grey[300],
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: sampleTracks.length,
-          itemBuilder: (context, index) {
-            return ArtistTrackItem(
-              rank: index + 1,
-              title: sampleTracks[index],
-              onTap: () {
-                // Handle track play action
-              },
-            );
-          },
-        ),
+        _isLoadingTracks
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : _topTracks.isEmpty
+            ? const Center(child: Text("Aucun titre trouvé"))
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _topTracks.length,
+                itemBuilder: (context, index) {
+                  final track = _topTracks[index];
+                  return ArtistTrackItem(
+                    rank: index + 1,
+                    title: track.title ?? "Titre inconnu",
+                    onTap: () {
+                      // Handle track play action
+                    },
+                  );
+                },
+              ),
       ],
     );
   }

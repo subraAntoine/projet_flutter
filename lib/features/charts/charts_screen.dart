@@ -129,10 +129,10 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
                                     final album = _albums[index];
                                     return ChartItem(
                                       rank: index + 1,
-                                      imageUrl: album.albumThumb,
-                                      title: album.title,
-                                      artist: album.artist,
-                                      artistId: album.artistId,
+                                      imageUrl: album.strAlbumThumb,
+                                      title: album.strAlbum,
+                                      artist: album.strArtist,
+                                      artistId: album.idArtist,
                                     );
                                   },
                                 ),
