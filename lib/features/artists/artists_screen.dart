@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:projet_flutter/core/models/artist.dart';
 import 'package:projet_flutter/core/models/album.dart';
 import 'package:projet_flutter/core/models/track.dart';
 import 'package:projet_flutter/core/services/the_audio_db.dart';
+import 'package:projet_flutter/core/services/the_audio_db_client.dart';
 import 'package:projet_flutter/core/theme/app_colors.dart';
+import 'package:projet_flutter/features/artists/bloc/artist_bloc.dart';
+import 'package:projet_flutter/features/artists/bloc/artist_event.dart';
+import 'package:projet_flutter/features/artists/bloc/artist_state.dart';
 import 'package:projet_flutter/features/artists/widgets/artist_album_item.dart';
 import 'package:projet_flutter/features/artists/widgets/artist_track_item.dart';
-import 'dart:developer' as developer;
 
 class ArtistScreen extends StatefulWidget {
   final String artistId;
@@ -21,110 +25,57 @@ class ArtistScreen extends StatefulWidget {
 }
 
 class _ArtistScreenState extends State<ArtistScreen> {
-  final AudioDbApi _audioDbApi = AudioDbApi();
-  Artist? _artist;
-  List<Album> _albums = [];
-  List<Track> _topTracks = [];
-  bool _isLoading = true;
-  bool _isLoadingAlbums = true;
-  bool _isLoadingTracks = true;
-  String _errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchArtistData();
-  }
-
-  Future<void> _fetchArtistData() async {
-    setState(() => _isLoading = true);
-    try {
-      developer.log('Fetching artist data for ID: ${widget.artistId}');
-      final artistList = await _audioDbApi.fetchArtistData(widget.artistId);
-      if (artistList.isNotEmpty) {
-        setState(() {
-          _artist = artistList.first;
-          _isLoading = false;
-        });
-        developer.log('Artist data fetched successfully: ${_artist!.name}');
-        _fetchArtistAlbums();
-        _fetchArtistTopTracks();
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Aucune information trouvée pour cet artiste';
-        });
-        developer.log('No artist data found');
-      }
-    } catch (e) {
-      developer.log('Error fetching artist data: $e');
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Erreur lors du chargement des données: $e';
-      });
-    }
-  }
-
-  Future<void> _fetchArtistAlbums() async {
-    setState(() => _isLoadingAlbums = true);
-    try {
-      developer.log('Fetching albums for artist ID: ${widget.artistId}');
-      final albums = await _audioDbApi.fetchArtistAlbums(widget.artistId);
-      setState(() {
-        _albums = albums;
-        _isLoadingAlbums = false;
-      });
-      developer.log('Albums fetched successfully: ${_albums.length}');
-    } catch (e) {
-      developer.log('Error fetching albums: $e');
-      setState(() {
-        _isLoadingAlbums = false;
-      });
-    }
-  }
-
-  Future<void> _fetchArtistTopTracks() async {
-    setState(() => _isLoadingTracks = true);
-    try {
-      developer.log('Fetching top tracks for artist ID: ${widget.artistId}');
-      final tracks = await _audioDbApi.fetchArtistTopTracks(widget.artistId);
-      setState(() {
-        _topTracks = tracks;
-        _isLoadingTracks = false;
-      });
-      developer.log('Top tracks fetched successfully: ${_topTracks.length}');
-    } catch (e) {
-      developer.log('Error fetching top tracks: $e');
-      setState(() {
-        _isLoadingTracks = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-        : _artist == null 
-          ? Center(child: Text(_errorMessage))
-          : _buildArtistContent(),
+    return BlocProvider(
+      create: (context) => ArtistBloc(audioDbApi: AudioDbApi(client: TheAudioDbClient.create()))
+        ..add(FetchArtistEvent(artistId: widget.artistId)),
+      child: BlocListener<ArtistBloc, ArtistState>(
+        listener: (context, state) {
+          if (state is ArtistError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        child: BlocBuilder<ArtistBloc, ArtistState>(
+          builder: (context, state) {
+            if (state is ArtistLoading || state is ArtistInitial) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              );
+            } else if (state is ArtistError) {
+              return Scaffold(
+                body: Center(child: Text(state.message)),
+              );
+            } else if (state is ArtistLoaded) {
+              return Scaffold(
+                body: _buildArtistContent(context, state),
+              );
+            } else {
+              return const Scaffold(
+                body: Center(child: Text('État inconnu')),
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 
-  Widget _buildArtistContent() {
+  Widget _buildArtistContent(BuildContext context, ArtistLoaded state) {
     return CustomScrollView(
       slivers: [
-        _buildAppBar(),
+        _buildAppBar(context, state.artist),
         SliverToBoxAdapter(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildArtistInfo(),
+              _buildArtistInfo(state.artist),
               const SizedBox(height: 20),
-              _buildAlbumSection(),
+              _buildAlbumSection(context, state.albums, state.isLoadingAlbums),
               const SizedBox(height: 20),
-              _buildTopTracksSection(),
+              _buildTopTracksSection(context, state.topTracks, state.isLoadingTracks),
             ],
           ),
         ),
@@ -132,7 +83,7 @@ class _ArtistScreenState extends State<ArtistScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context, Artist? artist) {
     return SliverAppBar(
       expandedHeight: 344.0,
       pinned: true,
@@ -159,15 +110,15 @@ class _ArtistScreenState extends State<ArtistScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _artist?.name ?? 'Artiste',
+              artist?.name ?? 'Artiste',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            if (_artist?.country != null && _artist?.country?.isNotEmpty == true)
+            if (artist?.country != null && artist?.country?.isNotEmpty == true)
               Text(
-                "${_artist?.country} - ${_artist?.genre ?? 'R&B'}",
+                "${artist?.country} - ${artist?.genre ?? 'R&B'}",
                 style: const TextStyle(
                   color: Color.fromARGB(178, 255, 255, 255),
                   fontSize: 14,
@@ -178,9 +129,9 @@ class _ArtistScreenState extends State<ArtistScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            _artist?.fanart != null && _artist?.fanart?.isNotEmpty == true
+            artist?.fanart != null && artist?.fanart?.isNotEmpty == true
               ? Image.network(
-                  _artist?.fanart ?? '',
+                  artist?.fanart ?? '',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[300],
@@ -206,16 +157,16 @@ class _ArtistScreenState extends State<ArtistScreen> {
     );
   }
 
-  Widget _buildArtistInfo() {
+  Widget _buildArtistInfo(Artist? artist) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          if (_artist?.biography != null && _artist?.biography?.isNotEmpty == true)
+          if (artist?.biography != null && artist?.biography?.isNotEmpty == true)
             Text(
-              _artist?.biography ?? '',
+              artist?.biography ?? '',
               style: const TextStyle(
                 fontSize: 16,
                 height: 1.5,
@@ -229,14 +180,14 @@ class _ArtistScreenState extends State<ArtistScreen> {
     );
   }
 
-  Widget _buildAlbumSection() {
+  Widget _buildAlbumSection(BuildContext context, List<Album> albums, bool isLoading) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            "Albums (${_albums.length})",
+            "Albums (${albums.length})",
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -251,17 +202,17 @@ class _ArtistScreenState extends State<ArtistScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        _isLoadingAlbums
+        isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : _albums.isEmpty
+          : albums.isEmpty
             ? const Center(child: Text("Aucun album trouvé"))
             : ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _albums.length,
+                itemCount: albums.length,
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 itemBuilder: (context, index) {
-                  final album = _albums[index];
+                  final album = albums[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
                     child: ArtistAlbumItem(
@@ -279,7 +230,7 @@ class _ArtistScreenState extends State<ArtistScreen> {
     );
   }
 
-  Widget _buildTopTracksSection() {
+  Widget _buildTopTracksSection(BuildContext context, List<Track> tracks, bool isLoading) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -300,16 +251,16 @@ class _ArtistScreenState extends State<ArtistScreen> {
             color: Colors.grey[300],
           ),
         ),
-        _isLoadingTracks
+        isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : _topTracks.isEmpty
+          : tracks.isEmpty
             ? const Center(child: Text("Aucun titre trouvé"))
             : ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _topTracks.length,
+                itemCount: tracks.length,
                 itemBuilder: (context, index) {
-                  final track = _topTracks[index];
+                  final track = tracks[index];
                   return ArtistTrackItem(
                     rank: index + 1,
                     title: track.title ?? "Titre inconnu",

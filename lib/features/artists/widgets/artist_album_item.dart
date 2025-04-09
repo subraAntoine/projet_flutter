@@ -1,88 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:projet_flutter/core/theme/app_colors.dart';
 
 class ArtistAlbumItem extends StatelessWidget {
   final String title;
-  final String? year;
+  final String year;
   final String? imageUrl;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const ArtistAlbumItem({
     Key? key,
     required this.title,
-    this.year,
+    required this.year,
     this.imageUrl,
-    this.onTap,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(6),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            // Album artwork
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-              ),
-              clipBehavior: Clip.antiAlias,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
               child: imageUrl != null && imageUrl!.isNotEmpty
                   ? Image.network(
                       imageUrl!,
+                      width: 60,
+                      height: 60,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60,
+                        height: 60,
                         color: Colors.grey[300],
-                        child: const Icon(Icons.album, color: Colors.white, size: 50),
+                        child: const Icon(Icons.music_note, color: Colors.grey),
                       ),
                     )
                   : Container(
+                      width: 60,
+                      height: 60,
                       color: Colors.grey[300],
-                      child: const Icon(Icons.album, color: Colors.white, size: 50),
+                      child: const Icon(Icons.music_note, color: Colors.grey),
                     ),
             ),
-            
             const SizedBox(width: 16),
-            
-            // Title and year
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (year != null)
-                    Text(
-                      year!,
-                      style: TextStyle(
-                        color: const Color(0xFF8D8D8D),
-                        fontSize: 14,
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    year.isEmpty ? 'Year unknown' : year,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
                     ),
+                  ),
                 ],
               ),
             ),
-            
-            // Arrow icon
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey.shade400,
-              size: 30,
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppColors.primary,
             ),
           ],
         ),

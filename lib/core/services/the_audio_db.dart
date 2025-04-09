@@ -1,20 +1,19 @@
 import 'package:projet_flutter/core/models/artist.dart';
-
-import 'api_client.dart';
-import '../models/album.dart';
-import '../models/track.dart';
+import 'package:projet_flutter/core/models/album.dart';
+import 'package:projet_flutter/core/models/track.dart';
 import 'dart:developer' as developer;
+import 'the_audio_db_client.dart';
 
 class AudioDbApi {
-  final ApiClient _client = ApiClient();
+  final TheAudioDbClient _client;
+  
+  AudioDbApi({TheAudioDbClient? client}) : _client = client ?? TheAudioDbClient.create();
 
   Future<List<Album>> fetchTrendingAlbums({String country = 'us'}) async {
     try {
-      final data = await _client.get('trending.php?country=$country&type=itunes&format=albums');
-      developer.log('Albums API Response: $data');
-      final List<dynamic> trendingData = data['trending'] ?? [];
-      developer.log('Number of albums: ${trendingData.length}');
-      return trendingData.map((albumData) => Album.fromJson(albumData)).toList();
+      final response = await _client.getTrendingAlbums(country: country);
+      developer.log('Number of albums: ${response.trending.length}');
+      return response.trending;
     } catch (e) {
       developer.log('Error fetching albums: $e');
       rethrow;
@@ -23,11 +22,9 @@ class AudioDbApi {
 
   Future<List<Track>> fetchTrendingSingles({String country = 'us'}) async {
     try {
-      final data = await _client.get('trending.php?country=$country&type=itunes&format=singles');
-      developer.log('Singles API Response: $data');
-      final List<dynamic> trendingData = data['trending'] ?? [];
-      developer.log('Number of singles: ${trendingData.length}');
-      return trendingData.map((trackData) => Track.fromJson(trackData)).toList();
+      final response = await _client.getTrendingSingles(country: country);
+      developer.log('Number of singles: ${response.trending.length}');
+      return response.trending;
     } catch (e) {
       developer.log('Error fetching singles: $e');
       rethrow;
@@ -36,11 +33,9 @@ class AudioDbApi {
 
   Future<List<Artist>> fetchArtistData(String id) async {
     try {
-      final data = await _client.get('artist.php?i=$id');
-      developer.log('Artist API Response: $data');
-      final List<dynamic> artistData = data['artists'] ?? [];
-      developer.log('Found ${artistData.length} artists in response');
-      return artistData.map((artistData) => Artist.fromJson(artistData)).toList();
+      final response = await _client.getArtistData(id);
+      developer.log('Found ${response.artists.length} artists in response');
+      return response.artists;
     } catch (e) {
       developer.log('Error fetching artist data: $e');
       rethrow;
@@ -49,11 +44,9 @@ class AudioDbApi {
 
   Future<List<Album>> fetchArtistAlbums(String id) async {
     try {
-      final data = await _client.get('album.php?i=$id');
-      developer.log('Artist albums API Response: $data');
-      final List<dynamic> albumsData = data['album'] ?? [];
-      developer.log('Number of albums: ${albumsData.length}');
-      return albumsData.map((albumData) => Album.fromJson(albumData)).toList();
+      final response = await _client.getArtistAlbums(id);
+      developer.log('Number of albums: ${response.album.length}');
+      return response.album;
     } catch (e) {
       developer.log('Error fetching artist albums: $e');
       return [];
@@ -62,21 +55,34 @@ class AudioDbApi {
 
   Future<List<Track>> fetchArtistTopTracks(String id) async {
     try {
+      // First try to get artist data
       final artistData = await fetchArtistData(id);
       if (artistData.isEmpty) {
+        developer.log('Artist data is empty, cannot fetch top tracks');
         return [];
       }
       
       final artistName = artistData.first.name;
+      if (artistName == null || artistName.isEmpty) {
+        developer.log('Artist name is null or empty, cannot fetch top tracks');
+        return [];
+      }
+      
       developer.log('Fetching tracks using artist name: $artistName');
       
-      final data = await _client.get('track-top10.php?s=${Uri.encodeComponent(artistName)}');
-      developer.log('Artist top tracks API Response: $data');
-      
-      final List<dynamic> tracksData = data['track'] ?? [];
-      developer.log('Number of tracks: ${tracksData.length}');
-      
-      return tracksData.map((trackData) => Track.fromJson(trackData)).toList();
+      // Wrap just the getArtistTopTracks call in its own try-catch to pinpoint the issue
+      try {
+        final response = await _client.getArtistTopTracks(artistName);
+        if (response.track == null) {
+          developer.log('Response track list is null');
+          return [];
+        }
+        developer.log('Response received, track count: ${response.track!.length}');
+        return response.track!;
+      } catch (e) {
+        developer.log('Error from API call to getArtistTopTracks: $e');
+        return [];
+      }
     } catch (e) {
       developer.log('Error fetching artist top tracks: $e');
       return [];

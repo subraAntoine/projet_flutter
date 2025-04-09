@@ -1,87 +1,85 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'track.g.dart';
+
+@JsonSerializable()
 class Track {
-  final String id;
-  final String chartPlace;
-  final String artistId;
-  final String albumId;
-  final String trackId;
-  final String artistMBID;
-  final String albumMBID;
-  final String trackMBID;
-  final String artist;
-  final String album;
-  final String title;
+  @JsonKey(name: 'idTrend')
+  final String? id;
+  
+  @JsonKey(name: 'intChartPlace')
+  final String? chartPlace;
+  
+  @JsonKey(name: 'idArtist')
+  final String? artistId;
+  
+  @JsonKey(name: 'idAlbum')
+  final String? albumId;
+  
+  @JsonKey(name: 'idTrack')
+  final String? trackId;
+  
+  @JsonKey(name: 'strArtistMBID')
+  final String? artistMBID;
+  
+  @JsonKey(name: 'strAlbumMBID')
+  final String? albumMBID;
+  
+  @JsonKey(name: 'strTrackMBID')
+  final String? trackMBID;
+  
+  @JsonKey(name: 'strArtist')
+  final String? artist;
+  
+  @JsonKey(name: 'strAlbum')
+  final String? album;
+  
+  @JsonKey(name: 'strTrack')
+  final String? title;
+  
+  @JsonKey(name: 'strArtistThumb')
   final String? artistThumb;
+  
+  @JsonKey(name: 'strAlbumThumb')
   final String? albumThumb;
+  
+  @JsonKey(name: 'strTrackThumb')
   final String? trackThumb;
-  final String country;
-  final String type;
-  final String week;
-  final String dateAdded;
+  
+  @JsonKey(name: 'strCountry')
+  final String? country;
+  
+  @JsonKey(name: 'strType')
+  final String? type;
+  
+  @JsonKey(name: 'intWeek')
+  final String? week;
+  
+  @JsonKey(name: 'dateAdded')
+  final String? dateAdded;
 
   Track({
-    required this.id,
-    required this.chartPlace,
-    required this.artistId,
-    required this.albumId,
-    required this.trackId,
-    required this.artistMBID,
-    required this.albumMBID,
-    required this.trackMBID,
-    required this.artist,
-    required this.album,
-    required this.title,
+    this.id,
+    this.chartPlace,
+    this.artistId,
+    this.albumId,
+    this.trackId,
+    this.artistMBID,
+    this.albumMBID,
+    this.trackMBID,
+    this.artist,
+    this.album,
+    this.title,
     this.artistThumb,
     this.albumThumb,
     this.trackThumb,
-    required this.country,
-    required this.type,
-    required this.week,
-    required this.dateAdded,
+    this.country,
+    this.type,
+    this.week,
+    this.dateAdded,
   });
 
-  factory Track.fromJson(Map<String, dynamic> json) {
-    return Track(
-      id: json['idTrend'] ?? '',
-      chartPlace: json['intChartPlace'] ?? '',
-      artistId: json['idArtist'] ?? '',
-      albumId: json['idAlbum'] ?? '',
-      trackId: json['idTrack'] ?? '',
-      artistMBID: json['strArtistMBID'] ?? '',
-      albumMBID: json['strAlbumMBID'] ?? '',
-      trackMBID: json['strTrackMBID'] ?? '',
-      artist: json['strArtist'] ?? '',
-      album: json['strAlbum'] ?? '',
-      title: json['strTrack'] ?? '',
-      artistThumb: json['strArtistThumb'],
-      albumThumb: json['strAlbumThumb'],
-      trackThumb: json['strTrackThumb'],
-      country: json['strCountry'] ?? '',
-      type: json['strType'] ?? '',
-      week: json['intWeek'] ?? '',
-      dateAdded: json['dateAdded'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'idTrend': id,
-      'intChartPlace': chartPlace,
-      'idArtist': artistId,
-      'idAlbum': albumId,
-      'idTrack': trackId,
-      'strArtistMBID': artistMBID,
-      'strAlbumMBID': albumMBID,
-      'strTrackMBID': trackMBID,
-      'strArtist': artist,
-      'strAlbum': album,
-      'strTrack': title,
-      'strArtistThumb': artistThumb,
-      'strAlbumThumb': albumThumb,
-      'strTrackThumb': trackThumb,
-      'strCountry': country,
-      'strType': type,
-      'intWeek': week,
-      'dateAdded': dateAdded,
-    };
-  }
+  factory Track.fromJson(Map<String, dynamic> json) => _$TrackFromJson(json);
+  
+  Map<String, dynamic> toJson() => _$TrackToJson(this);
 } 
