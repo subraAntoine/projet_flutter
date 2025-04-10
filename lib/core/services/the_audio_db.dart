@@ -53,9 +53,25 @@ class AudioDbApi {
     }
   }
 
+  Future<Album?> fetchAlbumById(String id) async {
+    try {
+      final response = await _client.getAlbumById(id);
+      developer.log('Album details fetched with ID: $id');
+      if (response.album.isNotEmpty) {
+        return response.album.first;
+      } else {
+        developer.log('No album found with ID: $id');
+        return null;
+      }
+    } catch (e) {
+      developer.log('Error fetching album details: $e');
+      return null;
+    }
+  }
+
   Future<List<Track>> fetchArtistTopTracks(String id) async {
     try {
-      // First try to get artist data
+      
       final artistData = await fetchArtistData(id);
       if (artistData.isEmpty) {
         developer.log('Artist data is empty, cannot fetch top tracks');
@@ -70,7 +86,7 @@ class AudioDbApi {
       
       developer.log('Fetching tracks using artist name: $artistName');
       
-      // Wrap just the getArtistTopTracks call in its own try-catch to pinpoint the issue
+      
       try {
         final response = await _client.getArtistTopTracks(artistName);
         if (response.track == null) {

@@ -38,6 +38,9 @@ abstract class TheAudioDbClient {
   @GET("album.php")
   Future<AlbumResponse> getArtistAlbums(@Query("i") String id);
 
+  @GET("album.php")
+  Future<AlbumResponse> getAlbumById(@Query("m") String id);
+
   @GET("track.php")
   Future<TrackResponse> getArtistTopTracks(@Query("m") String artistName);
 }

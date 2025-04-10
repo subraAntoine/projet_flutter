@@ -70,8 +70,8 @@ class Album {
   @JsonKey(name: 'strAlbum3DThumb')
   final String? strAlbum3DThumb;
   
-  @JsonKey(name: 'strDescription')
-  final String? strDescription;
+  @JsonKey(name: 'strDescriptionEN')
+  final String? strDescriptionEN;
   
   @JsonKey(name: 'strMusicBrainzID')
   final String? strMusicBrainzID;
@@ -105,7 +105,7 @@ class Album {
     this.strAlbum3DFlat,
     this.strAlbum3DFace,
     this.strAlbum3DThumb,
-    this.strDescription,
+    this.strDescriptionEN,
     this.strMusicBrainzID,
     this.strMusicBrainzArtistID,
     this.strLocked,

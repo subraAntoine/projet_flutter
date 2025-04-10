@@ -22,16 +22,8 @@ class ArtistAlbumItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFF3F3F3),
           borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Row(
           children: [
@@ -40,19 +32,19 @@ class ArtistAlbumItem extends StatelessWidget {
               child: imageUrl != null && imageUrl!.isNotEmpty
                   ? Image.network(
                       imageUrl!,
-                      width: 60,
-                      height: 60,
+                      width: 50,
+                      height: 50,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        width: 60,
-                        height: 60,
+                        width: 50,
+                        height: 50,
                         color: Colors.grey[300],
                         child: const Icon(Icons.music_note, color: Colors.grey),
                       ),
                     )
                   : Container(
-                      width: 60,
-                      height: 60,
+                      width: 50,
+                      height: 50,
                       color: Colors.grey[300],
                       child: const Icon(Icons.music_note, color: Colors.grey),
                     ),
@@ -85,7 +77,7 @@ class ArtistAlbumItem extends StatelessWidget {
             const Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: AppColors.primary,
+              color: AppColors.textSecondary,
             ),
           ],
         ),

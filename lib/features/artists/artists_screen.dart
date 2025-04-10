@@ -6,6 +6,7 @@ import 'package:projet_flutter/core/models/track.dart';
 import 'package:projet_flutter/core/services/the_audio_db.dart';
 import 'package:projet_flutter/core/services/the_audio_db_client.dart';
 import 'package:projet_flutter/core/theme/app_colors.dart';
+import 'package:projet_flutter/features/album/album_screen.dart';
 import 'package:projet_flutter/features/artists/bloc/artist_bloc.dart';
 import 'package:projet_flutter/features/artists/bloc/artist_event.dart';
 import 'package:projet_flutter/features/artists/bloc/artist_state.dart';
@@ -220,7 +221,14 @@ class _ArtistScreenState extends State<ArtistScreen> {
                       year: album.intYearReleased ?? "",
                       imageUrl: album.strAlbumThumb,
                       onTap: () {
-                        // Navigate to album details page
+                        if (album.idAlbum != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AlbumScreen(albumId: album.idAlbum!),
+                            ),
+                          );
+                        }
                       },
                     ),
                   );
