@@ -33,6 +33,8 @@ Album _$AlbumFromJson(Map<String, dynamic> json) => Album(
       strMusicBrainzID: json['strMusicBrainzID'] as String?,
       strMusicBrainzArtistID: json['strMusicBrainzArtistID'] as String?,
       strLocked: json['strLocked'] as String?,
+      intScore: json['intScore'] as String?,
+      intScoreVotes: json['intScoreVotes'] as String?,
     );
 
 Map<String, dynamic> _$AlbumToJson(Album instance) => <String, dynamic>{
@@ -62,4 +64,6 @@ Map<String, dynamic> _$AlbumToJson(Album instance) => <String, dynamic>{
       'strMusicBrainzID': instance.strMusicBrainzID,
       'strMusicBrainzArtistID': instance.strMusicBrainzArtistID,
       'strLocked': instance.strLocked,
+      'intScore': instance.intScore,
+      'intScoreVotes': instance.intScoreVotes,
     };

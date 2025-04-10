@@ -43,6 +43,9 @@ abstract class TheAudioDbClient {
 
   @GET("track.php")
   Future<TrackResponse> getArtistTopTracks(@Query("m") String artistName);
+
+  @GET("track.php")
+  Future<TrackResponse> getAlbumTracks(@Query("m") String albumId);
 }
 
 @JsonSerializable()

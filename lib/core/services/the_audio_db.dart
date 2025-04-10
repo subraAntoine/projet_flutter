@@ -104,4 +104,20 @@ class AudioDbApi {
       return [];
     }
   }
+
+  Future<List<Track>> fetchAlbumTracks(String albumId) async {
+    try {
+      developer.log('Fetching tracks for album ID: $albumId');
+      final response = await _client.getAlbumTracks(albumId);
+      if (response.track == null) {
+        developer.log('Response track list is null for album: $albumId');
+        return [];
+      }
+      developer.log('Album tracks received, count: ${response.track!.length}');
+      return response.track!;
+    } catch (e) {
+      developer.log('Error fetching album tracks: $e');
+      return [];
+    }
+  }
 }

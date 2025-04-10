@@ -62,46 +62,14 @@ class AlbumBloc extends Bloc<AlbumEvent, AlbumState> {
       try {
         developer.log('Fetching tracks for album ID: ${event.albumId}');
         
-        // This is a mock implementation since there's no direct method to fetch tracks by album
-        // In a real app, you would implement this properly in your AudioDbApi
-        // For now, we'll create mock data based on the image
-        final mockTracks = [
-          Track(
-            title: "Walk on Water feat. Beyoncé",
-            trackId: "1",
-          ),
-          Track(
-            title: "Believe",
-            trackId: "2",
-          ),
-          Track(
-            title: "Chloraseptic feat. Phresher",
-            trackId: "3",
-          ),
-          Track(
-            title: "Untouchable",
-            trackId: "4",
-          ),
-          Track(
-            title: "River feat. Ed Sheeran",
-            trackId: "5",
-          ),
-          Track(
-            title: "Remind Me (Intro)",
-            trackId: "6",
-          ),
-          Track(
-            title: "Remind Me",
-            trackId: "7",
-          ),
-        ];
+        final tracks = await _audioDbApi.fetchAlbumTracks(event.albumId);
         
-        developer.log('Tracks fetched successfully: ${mockTracks.length}');
+        developer.log('Tracks fetched successfully: ${tracks.length}');
         
         if (state is AlbumLoaded) {
           final updatedState = (state as AlbumLoaded);
           emit(updatedState.copyWith(
-            tracks: mockTracks,
+            tracks: tracks,
             isLoadingTracks: false,
           ));
         }

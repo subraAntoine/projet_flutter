@@ -4,6 +4,7 @@ import 'package:projet_flutter/core/models/album.dart';
 import 'package:projet_flutter/core/models/track.dart';
 import 'package:projet_flutter/core/services/the_audio_db.dart';
 import 'package:projet_flutter/core/services/the_audio_db_client.dart';
+import 'package:projet_flutter/core/theme/app_colors.dart';
 import 'package:projet_flutter/features/album/bloc/album_bloc.dart';
 import 'package:projet_flutter/features/album/bloc/album_event.dart';
 import 'package:projet_flutter/features/album/bloc/album_state.dart';
@@ -61,9 +62,10 @@ class _AlbumScreenState extends State<AlbumScreen> {
   }
   
   Widget _buildAlbumContent(BuildContext context, AlbumLoaded state) {
+    final trackCount = state.tracks.length;
     return CustomScrollView(
       slivers: [
-        _buildAppBar(context, state.album),
+        _buildAppBar(context, state.album, trackCount),
         _buildAlbumInfo(state),
         _buildAlbumDescription(state.album),
         _buildTrackList(state.tracks),
@@ -71,24 +73,53 @@ class _AlbumScreenState extends State<AlbumScreen> {
     );
   }
   
-  Widget _buildAppBar(BuildContext context, Album album) {
+  Widget _buildAppBar(BuildContext context, Album album, int trackCount) {
     return SliverAppBar(
       expandedHeight: 223,
       pinned: true,
+      backgroundColor: Colors.black,
+      title: Text(
+        album.strArtist ?? 'Artiste',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      centerTitle: true,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          album.strAlbum ?? 'Unknown Album',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        centerTitle: true,
+        titlePadding: const EdgeInsets.only(bottom: 60),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              album.strAlbum ?? 'Titre',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              '$trackCount chansons',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
         background: Container(
           decoration: BoxDecoration(
+            color: Colors.black,
             image: DecorationImage(
               image: NetworkImage(album.strAlbumThumb ?? 
                  'https://via.placeholder.com/400x400?text=No+Image'),
               fit: BoxFit.cover,
+              opacity: 0.7,
             ),
           ),
           child: Container(
@@ -97,8 +128,8 @@ class _AlbumScreenState extends State<AlbumScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.transparent,
                   Colors.black.withOpacity(0.7),
+                  Colors.black.withOpacity(0.9),
                 ],
               ),
             ),
@@ -121,39 +152,42 @@ class _AlbumScreenState extends State<AlbumScreen> {
   Widget _buildAlbumInfo(AlbumLoaded state) {
     return SliverToBoxAdapter(
       child: Container(
-        color: Colors.grey[200],
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F3F3),
+          borderRadius: BorderRadius.circular(6.0),
+        ),
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              '${state.album.strArtist ?? "Unknown Artist"}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.star, color: Color(0xFF8D8D8D), size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    (double.parse(state.album.intScore ?? '0') / 2).toStringAsFixed(1) ?? 'No score',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF8D8D8D),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.star, color: Colors.amber, size: 18),
-                const SizedBox(width: 4),
-                Text(
-                  state.rating.toString(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${state.voteCount} votes',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+            const SizedBox(width: 16),
+            Text(
+              '${state.album.intScoreVotes ?? '0'} votes',
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textPrimary,
+              ),
             ),
           ],
         ),
@@ -172,21 +206,23 @@ class _AlbumScreenState extends State<AlbumScreen> {
               album.strDescriptionEN ?? 
               'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make...',
               style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+                fontSize: 16,
+                color: const Color(0xFF8D8D8D),
               ),
               maxLines: 5,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 36),
             const Text(
               'Titres',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            const Divider(),
+            const Divider(
+              color: Color(0xFFE6E6E6),
+            ),
           ],
         ),
       ),

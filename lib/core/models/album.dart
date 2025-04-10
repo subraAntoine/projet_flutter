@@ -82,6 +82,11 @@ class Album {
   @JsonKey(name: 'strLocked')
   final String? strLocked;
 
+  @JsonKey(name: 'intScore')
+  final String? intScore;
+
+  @JsonKey(name: 'intScoreVotes')
+  final String? intScoreVotes;
   Album({
     this.idAlbum,
     this.idArtist,
@@ -109,6 +114,8 @@ class Album {
     this.strMusicBrainzID,
     this.strMusicBrainzArtistID,
     this.strLocked,
+    this.intScore,
+    this.intScoreVotes,
   });
 
   factory Album.fromJson(Map<String, dynamic> json) => _$AlbumFromJson(json);
