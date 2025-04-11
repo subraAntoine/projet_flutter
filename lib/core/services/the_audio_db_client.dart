@@ -41,12 +41,21 @@ abstract class TheAudioDbClient {
   @GET("album.php")
   Future<AlbumResponse> getAlbumById(@Query("m") String id);
 
-  @GET("track.php")
-  Future<TrackResponse> getArtistTopTracks(@Query("m") String artistName);
+  @GET("track-top10.php")
+  Future<TrackResponse> getArtistTopTracks(@Query("s") String artistName);
 
   @GET("track.php")
   Future<TrackResponse> getAlbumTracks(@Query("m") String albumId);
+
+  @GET("search.php")
+  Future<ArtistResponse> searchArtist(@Query("s") String artistName);
+
+  @GET("searchalbum.php")
+  Future<AlbumResponse> searchAlbum(@Query("s") String artistName);
+
 }
+
+
 
 @JsonSerializable()
 class TrendingAlbumsResponse {
@@ -102,10 +111,10 @@ class AlbumResponse {
 
 @JsonSerializable()
 class TrackResponse {
-  @JsonKey(name: 'track', defaultValue: [])
+  @JsonKey(name: 'track', defaultValue: null)
   final List<Track>? track;
 
-  TrackResponse({this.track = const []});
+  TrackResponse({this.track});
 
   factory TrackResponse.fromJson(Map<String, dynamic> json) => 
       _$TrackResponseFromJson(json);

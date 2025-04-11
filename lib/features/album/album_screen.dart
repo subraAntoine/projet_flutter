@@ -9,6 +9,7 @@ import 'package:projet_flutter/features/album/bloc/album_bloc.dart';
 import 'package:projet_flutter/features/album/bloc/album_event.dart';
 import 'package:projet_flutter/features/album/bloc/album_state.dart';
 import 'package:projet_flutter/features/album/widgets/album_track_item.dart';
+import 'package:projet_flutter/features/favorites/widgets/favorite_button.dart';
 
 class AlbumScreen extends StatefulWidget {
   final String albumId;
@@ -90,27 +91,33 @@ class _AlbumScreenState extends State<AlbumScreen> {
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         titlePadding: const EdgeInsets.only(bottom: 60),
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              album.strAlbum ?? 'Titre',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
+        title: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                album.strAlbum ?? 'Titre',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              '$trackCount chansons',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
+              const SizedBox(height: 5),
+              Text(
+                '$trackCount chansons',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         background: Container(
           decoration: BoxDecoration(
@@ -141,10 +148,16 @@ class _AlbumScreenState extends State<AlbumScreen> {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.white),
-          onPressed: () {},
-        ),
+        album.idAlbum != null
+          ? FavoriteButton(
+              type: FavoriteType.album,
+              id: album.idAlbum!,
+              item: album,
+            )
+          : IconButton(
+              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              onPressed: () {},
+            ),
       ],
     );
   }

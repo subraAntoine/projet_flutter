@@ -93,8 +93,8 @@ class AudioDbApi {
           developer.log('Response track list is null');
           return [];
         }
-        developer.log('Response received, track count: ${response.track!.length}');
-        return response.track!;
+        developer.log('Response received, track count: ${response.track?.length ?? 0}');
+        return response.track ?? [];
       } catch (e) {
         developer.log('Error from API call to getArtistTopTracks: $e');
         return [];
@@ -113,10 +113,34 @@ class AudioDbApi {
         developer.log('Response track list is null for album: $albumId');
         return [];
       }
-      developer.log('Album tracks received, count: ${response.track!.length}');
-      return response.track!;
+      developer.log('Album tracks received, count: ${response.track?.length ?? 0}');
+      return response.track ?? [];
     } catch (e) {
       developer.log('Error fetching album tracks: $e');
+      return [];
+    }
+  }
+
+  Future<List<Artist>> searchArtistByName(String artistName) async {
+    try {
+      developer.log('Searching for artist: $artistName');
+      final response = await _client.searchArtist(artistName);
+      developer.log('Found ${response.artists.length} artists matching: $artistName');
+      return response.artists;
+    } catch (e) {
+      developer.log('Error searching for artist: $e');
+      return [];
+    }
+  }
+
+  Future<List<Album>> searchAlbumsByArtist(String artistName) async {
+    try {
+      developer.log('Searching for albums by artist: $artistName');
+      final response = await _client.searchAlbum(artistName);
+      developer.log('Found ${response.album.length} albums for artist: $artistName');
+      return response.album;
+    } catch (e) {
+      developer.log('Error searching for albums: $e');
       return [];
     }
   }

@@ -50,7 +50,7 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(left: 8.0),
+                  padding: EdgeInsets.only(left: 16.0),
                   child: Text(
                     'Classements',
                     style: TextStyle(
@@ -123,6 +123,7 @@ class _ChartsScreenState extends State<ChartsScreen> with SingleTickerProviderSt
                                           title: album.strAlbum ?? 'Unknown Album',
                                           artist: album.strArtist ?? 'Unknown Artist',
                                           artistId: album.idArtist,
+                                          albumId: album.idAlbum,
                                         );
                                       },
                                     ),

@@ -41,7 +41,7 @@ class AppRouter {
             name: 'favorites',
             pageBuilder: (context, state) => NoTransitionPage(
               key: state.pageKey,
-              child: FavoritesScreen(),
+              child: const FavoritesScreen(),
             ),
           ),
         ],

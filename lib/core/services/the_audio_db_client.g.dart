@@ -65,9 +65,8 @@ Map<String, dynamic> _$AlbumResponseToJson(AlbumResponse instance) =>
 TrackResponse _$TrackResponseFromJson(Map<String, dynamic> json) =>
     TrackResponse(
       track: (json['track'] as List<dynamic>?)
-              ?.map((e) => Track.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+          ?.map((e) => Track.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$TrackResponseToJson(TrackResponse instance) =>
@@ -280,7 +279,7 @@ class _TheAudioDbClient implements TheAudioDbClient {
   @override
   Future<TrackResponse> getArtistTopTracks(String artistName) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'm': artistName};
+    final queryParameters = <String, dynamic>{r's': artistName};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<TrackResponse>(Options(
@@ -290,7 +289,7 @@ class _TheAudioDbClient implements TheAudioDbClient {
     )
         .compose(
           _dio.options,
-          'track.php',
+          'track-top10.php',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -336,6 +335,72 @@ class _TheAudioDbClient implements TheAudioDbClient {
     late TrackResponse _value;
     try {
       _value = TrackResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ArtistResponse> searchArtist(String artistName) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r's': artistName};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ArtistResponse>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'search.php',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ArtistResponse _value;
+    try {
+      _value = ArtistResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<AlbumResponse> searchAlbum(String artistName) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r's': artistName};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<AlbumResponse>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'searchalbum.php',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late AlbumResponse _value;
+    try {
+      _value = AlbumResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

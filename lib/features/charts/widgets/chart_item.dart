@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projet_flutter/core/theme/app_colors.dart';
 import 'package:projet_flutter/features/artists/artists_screen.dart';
+import 'package:projet_flutter/features/album/album_screen.dart';
 
 class ChartItem extends StatelessWidget {
   final int rank;
@@ -8,6 +9,7 @@ class ChartItem extends StatelessWidget {
   final String title;
   final String artist;
   final String? artistId;
+  final String? albumId;
 
   const ChartItem({
     Key? key,
@@ -16,13 +18,21 @@ class ChartItem extends StatelessWidget {
     required this.title,
     required this.artist,
     this.artistId,
+    this.albumId,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (artistId != null) {
+        if (albumId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlbumScreen(albumId: albumId!),
+            ),
+          );
+        } else if (artistId != null) {
           Navigator.push(
             context,
             MaterialPageRoute(

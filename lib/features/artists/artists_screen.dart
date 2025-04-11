@@ -12,6 +12,7 @@ import 'package:projet_flutter/features/artists/bloc/artist_event.dart';
 import 'package:projet_flutter/features/artists/bloc/artist_state.dart';
 import 'package:projet_flutter/features/artists/widgets/artist_album_item.dart';
 import 'package:projet_flutter/features/artists/widgets/artist_track_item.dart';
+import 'package:projet_flutter/features/favorites/widgets/favorite_button.dart';
 
 class ArtistScreen extends StatefulWidget {
   final String artistId;
@@ -97,10 +98,13 @@ class _ArtistScreenState extends State<ArtistScreen> {
           padding: const EdgeInsets.only(top: 8.0, right: 8.0),
           child: CircleAvatar(
             backgroundColor: Colors.white,
-            child: IconButton(
-              icon: const Icon(Icons.favorite, color: AppColors.primary),
-              onPressed: () {},
-            ),
+            child: artist != null && artist.id != null
+              ? FavoriteButton(
+                  type: FavoriteType.artist,
+                  id: artist.id!,
+                  item: artist,
+                )
+              : const Icon(Icons.favorite_border, color: AppColors.primary),
           ),
         ),
       ],
